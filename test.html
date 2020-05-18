@@ -1,0 +1,18 @@
+<!-- <%@ page contentType="text/html; charset=GBK" pageEncoding="utf-8"%>
+<%String path=request.getContextPath(); %> -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>测试上传图片</title>
+<link rel="shortcut icon" type="image/ico" href="/favicon.ico" />
+</head>
+<body>
+    <!-- <form action="http://localhost:8000/api/user/regitser" method="post" enctype="multipart/form-data"> -->
+    <form action="http://localhost:8000/api/user/login" method="post" enctype="multipart/form-data">
+        <!-- <input type="file" name="file" id="file" value="" multiple="multiple" /> -->
+        <input type="text" name="username" id="username" value="" multiple="multiple" />
+        <input type="password" name="password" id="password" value="" multiple="multiple" />
+        <input type="submit" value="提交"/>
+    </form>
+</body>
