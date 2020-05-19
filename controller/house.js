@@ -17,7 +17,7 @@ const getList = async (owner, keyword) => {
 }
 
 //详情获取
-const getDetail = async (id) => {
+const getHouseDetail = async (id) => {
     const sql = `select * from housems where id='${id}' `
     const rows = await exec(sql)
     return rows[0]
@@ -73,7 +73,7 @@ const newHouse = async (blogData = {}) => {
 
 module.exports = {
     getList,
-    getDetail,
+    getHouseDetail,
     newHouse
     // updateBlog,
     // deleteBlog

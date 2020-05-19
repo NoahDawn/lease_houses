@@ -1,5 +1,5 @@
 const router = require('koa-router') ()
-const { getList, getDetail, newHouse } = require('../controller/house.js')
+const { getList, getHouseDetail, newHouse } = require('../controller/house.js')
 const { isExit, addRecord,updateRecord } = require('../controller/record.js')
 const { SuccessModel, ErrorModel } = require('../model/resModel.js')
 const loginCheck = require('../middleware/loginCheck.js')
@@ -33,7 +33,7 @@ router.get('/detail', async function (ctx, next) {
     const houseid = ctx.query.houseid || ''
     const myid = ctx.query.myid || ''
     //获取房源详情
-    const detailData = await getDetail(houseid)
+    const detailData = await getHouseDetail(houseid)
     //若个人id和房源id都不为空，则生成浏览记录
     if (myid && houseid) {
         const exitData = await isExit(myid, houseid)

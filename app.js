@@ -31,6 +31,7 @@ const blog = require('./routers/blog.js')
 const user = require('./routers/user.js')
 const house = require('./routers/house.js')
 const picture = require('./routers/pictrue.js')
+const record = require('./routers/record.js')
 
 //error handler
 onerror(app)
@@ -89,6 +90,7 @@ router.use('/api/blog', blog)
 router.use('/api/user', user)
 router.use('/api/house', house)
 router.use('/api/picture', picture)
+router.use('/api/record', record)
 app.use(router.routes(), router.allowedMethods())
 
 //抛出异常

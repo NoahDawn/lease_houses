@@ -3,18 +3,10 @@ const xss = require('xss')
 const { exec } = require('../db/mysql.js')
 
 //获取列表
-// const getList = async (owner, keyword) => {
-//     //where 1=1用于为后续添加的查询条件做连接
-//     let sql = `select * from housems where 1=1 `
-//     if (owner) {
-//         sql += `and owner='${owner}' `
-//     }
-//     if (keyword) {
-//         sql += `and location like '%${keyword}%' `
-//     }
-//     sql += `order by id desc `
-//     return await exec(sql)
-// }
+const getList = async (myId) => {
+    let sql = `select * from records where myId='${myId}' order by time desc `
+    return await exec(sql)
+}
 
 //是否存在
 const isExit = async function (myId, houseId) {
@@ -24,8 +16,8 @@ const isExit = async function (myId, houseId) {
 }
 
 //详情获取
-const getDetail = async (id) => {
-    const sql = `select * from housems where id='${id}' `
+const getRecordDetail = async (id) => {
+    const sql = `select * from records where id='${id}' `
     const rows = await exec(sql)
     return rows[0]
 }
@@ -56,9 +48,9 @@ const updateRecord = async (id, updatetime) => {
 }
 
 module.exports = {
-    // getList,
+    getList,
     isExit,
-    getDetail,
+    getRecordDetail,
     addRecord,
     updateRecord
 }
