@@ -1,5 +1,5 @@
 const router = require('koa-router') ()
-const { getList, getHouseDetail, newHouse } = require('../controller/house.js')
+const { getList, getHouseDetail, newHouse, updateHouse } = require('../controller/house.js')
 const { isExit, addRecord,updateRecord } = require('../controller/record.js')
 const { SuccessModel, ErrorModel } = require('../model/resModel.js')
 const loginCheck = require('../middleware/loginCheck.js')
@@ -56,21 +56,23 @@ router.get('/detail', async function (ctx, next) {
 router.post('/new', loginCheck, async function (ctx, next) {
 // router.post('/new', async function (ctx, next) {
     const body = ctx.request.body
-    body.owner = ctx.session.realname
+    // body.owner = ctx.session.realname
+    body.owner = ctx.query.owner
+    body.ownerId = ctx.query.ownerId
     const newData = await newHouse(body)
     ctx.body = new SuccessModel(newData)
 })
 
-//更新博客路由
+//更新房屋租赁状态路由
 // router.post('/update', loginCheck, async function (ctx, next) {
-// router.post('/update', async function (ctx, next) {
-//     const updateValue = await updateBlog(ctx.query.id, ctx.request.body)
-//     if (updateValue) {
-//         ctx.body = new SuccessModel()
-//     } else {
-//         ctx.body = new ErrorModel('更新博客失败')
-//     }
-// })
+router.post('/update', async function (ctx, next) {
+    const updateValue = await updateHouse(ctx.query.id)
+    if (updateValue) {
+        ctx.body = new SuccessModel()
+    } else {
+        ctx.body = new ErrorModel('更新租赁状态失败')
+    }
+})
 
 //删除博客路由
 // router.post('/delete', loginCheck, async function (ctx, next) {

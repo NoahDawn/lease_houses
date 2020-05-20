@@ -10,9 +10,9 @@ const views = require('koa-views')
 const json = require('koa-json')
 //处理报错
 const onerror = require('koa-onerror')
-//处理上传数据
-const bodyparser = require('koa-bodyparser')
+//处理上传数据(特别注意后续引用中间件时候body和bodyparser的先后顺序)
 const koaBody = require('koa-body')
+const bodyparser = require('koa-bodyparser')
 //处理日志
 const logger = require('koa-logger')
 //session和redis
@@ -27,20 +27,16 @@ const path = require('path')
 const { REDIS_CONF } = require('./conf/db.js')
 
 //引用路由
-const blog = require('./routers/blog.js')
 const user = require('./routers/user.js')
 const house = require('./routers/house.js')
 const picture = require('./routers/pictrue.js')
 const record = require('./routers/record.js')
+const order = require('./routers/order.js')
 
 //error handler
 onerror(app)
 
 //注册middlewares(中间件)
-app.use(bodyparser({
-    //处理postdata不同格式的数据
-    enableTypes:['json', 'form', 'text']
-}))
 //设置图片的上传大小
 app.use(koaBody({
     multipart: true,
@@ -48,6 +44,12 @@ app.use(koaBody({
         maxFileSize: 200*1024*1024    // 设置上传文件大小最大限制，默认2M
     }
 }))
+//设置接收数据的格式
+app.use(bodyparser({
+    //处理postdata不同格式的数据
+    enableTypes:['json', 'form', 'text']
+}))
+
 app.use(json())
 app.use(logger())
 
@@ -86,11 +88,11 @@ app.use(session({
 app.use(cors())
 
 //注册router
-router.use('/api/blog', blog)
 router.use('/api/user', user)
 router.use('/api/house', house)
 router.use('/api/picture', picture)
 router.use('/api/record', record)
+router.use('/api/order', order)
 app.use(router.routes(), router.allowedMethods())
 
 //抛出异常

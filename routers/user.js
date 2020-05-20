@@ -23,9 +23,9 @@ router.post('/login', async function (ctx, next) {
         // console.log('token is: ', token)
         // console.log('test is: ', ctx.body.test)
         // console.log('tokenms is: ', ctx.body.token.username)
-        ctx.session.userid = data.id
-        ctx.session.username = data.username
-        ctx.session.realname = data.realname
+        // ctx.session.userid = data.id
+        // ctx.session.username = data.username
+        // ctx.session.realname = data.realname
         ctx.body = new SuccessModel()
         return
     }
