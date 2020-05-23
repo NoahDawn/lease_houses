@@ -21,7 +21,7 @@ const register = async (userData = {}) => {
     const password = genPassword(xss(userData.password))
     const realname = xss(userData.realname)
     const phone = xss(userData.phone)
-    //默认的头像存储路径
+    //默认的头像路径
     const picture = 'http://localhost:8000/static/picture/user/DefaultAvatar.jpg'
 
     const sql = `insert into userms (username, password, realname, phone, picture)

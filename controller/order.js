@@ -38,7 +38,7 @@ const newOrder = async (orderData = {}) => {
     }
 }
 
-//更改确认态（确认和取消）
+//更改确认态
 const updateStatus = async (id, myid, type, confirm) => {
     //租户确认订单
     let sql = `update orders set `
