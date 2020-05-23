@@ -3,7 +3,6 @@ const fs = require('fs')
 const path = require('path')
 const { login, register, updateUserMS, getUserDetail } = require('../controller/user.js')
 const { SuccessModel, ErrorModel } = require('../model/resModel.js')
-// const { generateToken } = require('../untils/token.js')
 
 //添加路由前缀
 // router.prefix('/api/user')

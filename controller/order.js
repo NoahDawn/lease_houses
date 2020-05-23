@@ -73,7 +73,7 @@ const updateStatus = async (id, myid, type, confirm) => {
     return false
 }
 
-//订单被双方取消后，从数据库删除
+//订单被双方取消后，从数据库删除该订单
 const deleteOrder = async (id) => {
     const sql = `delete from orders where id='${id}' `
     const deleteData = await exec(sql)

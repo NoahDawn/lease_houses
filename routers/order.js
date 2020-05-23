@@ -2,7 +2,6 @@ const router = require('koa-router') ()
 const { getList, newOrder, getOrderDetail, updateStatus, deleteOrder } = require('../controller/order.js')
 const { getHouseDetail, updateCount } = require('../controller/house.js')
 const { SuccessModel, ErrorModel } = require('../model/resModel.js')
-// const loginCheck = require('../middleware/loginCheck.js')
 
 //添加路由前缀
 // router.prefix('/api/order')
