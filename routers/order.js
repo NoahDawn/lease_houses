@@ -34,7 +34,7 @@ router.post('/new', async function (ctx, next) {
     ctx.body = new SuccessModel(newData)
 })
 
-//更新订单确认态路由
+//更新订单确认态路由（含取消）
 router.post('/updatestatus', async function (ctx, next) {
     const id = ctx.query.id
     const myid = ctx.query.myid

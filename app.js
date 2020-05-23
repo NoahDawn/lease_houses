@@ -108,7 +108,7 @@ router.post('/register', async function (ctx, next) {
 })
 
 const { updateUserMS } = require('./controller/user.js')
-//用户个人信息修改，含头像上传
+//用户个人信息修改，含头像上传部分
 router.post('/api/user/update', async function (ctx, next) {
     const body = ctx.request.body
 
