@@ -1,11 +1,14 @@
 const router = require('koa-router') ()
-const { login, register } = require('../controller/user.js')
+const fs = require('fs')
+const path = require('path')
+const { login, register, updateUserMS, getUserDetail } = require('../controller/user.js')
 const { SuccessModel, ErrorModel } = require('../model/resModel.js')
-const { generateToken } = require('../untils/token.js')
+// const { generateToken } = require('../untils/token.js')
 
 //添加路由前缀
 // router.prefix('/api/user')
 
+//用户登录
 router.post('/login', async function (ctx, next) {
     const { username, password } = ctx.request.body
     const data = await login(username, password)
@@ -26,12 +29,13 @@ router.post('/login', async function (ctx, next) {
         // ctx.session.userid = data.id
         // ctx.session.username = data.username
         // ctx.session.realname = data.realname
-        ctx.body = new SuccessModel()
+        ctx.body = {loginUserMS:data}
         return
     }
     ctx.body = new ErrorModel('登录失败')
 })
 
+//检测访问次数
 router.get('/session-test', async function (ctx, next) {
     //检测访问次数
     if (ctx.session.viewCount == null) {
@@ -45,10 +49,17 @@ router.get('/session-test', async function (ctx, next) {
     }
 })
 
+//用户注册
 router.post('/register', async function (ctx, next) {
     const body = ctx.request.body
     const newData = await register(body)
     ctx.body = new SuccessModel(newData)
+})
+
+//获取详情路由
+router.get('/detail', async function (ctx, next) {
+    const detailData = await getUserDetail(ctx.query.id)
+    ctx.body = new SuccessModel(detailData)
 })
 
 module.exports = {

@@ -39,18 +39,45 @@ const newOrder = async (orderData = {}) => {
 }
 
 //更改确认态
-const updateStatus = async (id, myid, type) => {
+const updateStatus = async (id, myid, type, confirm) => {
     //租户确认订单
-    let sql = ``
+    let sql = `update orders set `
     if (type === 'renter') {
-        sql += `update orders set renterState='1' where id='${id}' and renterId='${myid}' `
+        //租户认可订单
+        if (confirm === 'sure') {
+            sql += `renterState='1' `
+        }
+        //租户取消清单
+        if (confirm === 'cancel') {
+            sql += `renterState='2' `
+        }
+        sql += `where renterId='${myid}' `
     }
     //房主确认订单
     if (type === 'owner') {
-        sql += `update orders set ownerState='1' where id='${id}' and ownerId='${myid}' `
+        //房主认可订单
+        if (confirm === 'sure') {
+            sql += `ownerState='1' `
+        }
+        //房主取消订单
+        if (confirm === 'cancel') {
+            sql += `ownerState='2' `
+        }
+        sql += `where ownerId='${myid}' `
     }
+    sql += `and id='${id}' `
     const updateData = await exec(sql)
     if (updateData.affectedRows > 0) {
+        return true
+    }
+    return false
+}
+
+//订单被双方取消后，从数据库删除
+const deleteOrder = async (id) => {
+    const sql = `delete from orders where id='${id}' `
+    const deleteData = await exec(sql)
+    if (deleteData.affectedRows > 0) {
         return true
     }
     return false
@@ -60,5 +87,6 @@ module.exports = {
     getList,
     getOrderDetail,
     newOrder,
-    updateStatus
+    updateStatus,
+    deleteOrder
 }

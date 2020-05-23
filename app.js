@@ -22,6 +22,8 @@ const redisStore = require('koa-redis')
 const cors = require('koa2-cors')
 //路径获取
 const path = require('path')
+//文件操作
+const fs = require('fs')
 
 //动态引入redis
 const { REDIS_CONF } = require('./conf/db.js')
@@ -29,7 +31,6 @@ const { REDIS_CONF } = require('./conf/db.js')
 //引用路由
 const user = require('./routers/user.js')
 const house = require('./routers/house.js')
-const picture = require('./routers/pictrue.js')
 const record = require('./routers/record.js')
 const order = require('./routers/order.js')
 
@@ -70,27 +71,73 @@ app.use(async (ctx, next) => {
 })
 
 //生成密匙
-app.keys = ['DZG_dzg@']
-app.use(session({
-    //配置cookie
-    cookie: {
-        path: '/',
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000
-    },
-    //配置redis
-    store: redisStore ({
-        all: `${REDIS_CONF.host}:${REDIS_CONF.port}`
-    })
-}))
+// app.keys = ['DZG_dzg@']
+// app.use(session({
+//     //配置cookie
+//     cookie: {
+//         path: '/',
+//         httpOnly: true,
+//         maxAge: 24 * 60 * 60 * 1000
+//     },
+//     //配置redis
+//     store: redisStore ({
+//         all: `${REDIS_CONF.host}:${REDIS_CONF.port}`
+//     })
+// }))
 
 //实现跨域
-app.use(cors())
+app.use(cors({
+    origin: function(ctx) { //设置允许来自指定域名请求
+        return '*';  //直接设为所有域名都可访问
+        // if (ctx.url === '/test') {
+        //     return '*';// 允许来自所有域名请求
+        // }
+        // return 'http://localhost:8000'; //只允许http://localhost:8080这个域名的请求
+    },
+    maxAge: 5, //指定本次预检请求的有效期，单位为秒。
+    credentials: true, //是否允许发送Cookie
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], //设置所允许的HTTP请求方法
+    allowHeaders: ['Content-Type', 'Authorization', 'Accept'], //设置服务器支持的所有头信息字段
+    exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'] //设置获取其他自定义字段
+}))
+
+router.post('/register', async function (ctx, next) {
+    const body = ctx.request.body
+    const newData = await register(body)
+    ctx.body = new SuccessModel(newData)
+})
+
+const { updateUserMS } = require('./controller/user.js')
+//用户个人信息修改，含头像上传部分
+router.post('/api/user/update', async function (ctx, next) {
+    const body = ctx.request.body
+
+    //头像的上传
+    const file = ctx.request.files.user
+    const userid = ctx.request.query.userid
+    // 创建可读流
+    const reader = fs.createReadStream(file.path);
+    // 修改文件的名称
+    var newFilename = 'user_'+`${userid}`+'.'+file.name.split('.')[1]
+    var uploadPath = path.join(__dirname, '/static/picture/user/') + `/${newFilename}`;
+    
+    //创建可写流
+    const upStream = fs.createWriteStream(uploadPath);
+    // 可读流通过管道写入可写流
+    reader.pipe(upStream);
+    //返回保存的路径
+    const url = 'http://' + ctx.headers.host + '/static/picture/user/' + newFilename
+
+    //将保存的路径写入body
+    body.picture = url
+    body.id = userid
+    const newData = await updateUserMS(body)
+    return ctx.body = {userid:newData.id}
+})
 
 //注册router
 router.use('/api/user', user)
 router.use('/api/house', house)
-router.use('/api/picture', picture)
 router.use('/api/record', record)
 router.use('/api/order', order)
 app.use(router.routes(), router.allowedMethods())

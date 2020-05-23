@@ -1,5 +1,5 @@
 const router = require('koa-router') ()
-const { getList, newOrder, getOrderDetail, updateStatus } = require('../controller/order.js')
+const { getList, newOrder, getOrderDetail, updateStatus, deleteOrder } = require('../controller/order.js')
 const { getHouseDetail, updateCount } = require('../controller/house.js')
 const { SuccessModel, ErrorModel } = require('../model/resModel.js')
 // const loginCheck = require('../middleware/loginCheck.js')
@@ -39,8 +39,9 @@ router.post('/new', async function (ctx, next) {
 router.post('/updatestatus', async function (ctx, next) {
     const id = ctx.query.id
     const myid = ctx.query.myid
-    const type = ctx.query.type || ''
-    const updateValue = await updateStatus(id, myid, type)
+    const type = ctx.query.type || ''     //身份类型
+    const confirm = ctx.query.confirm || ''    //确认类型
+    const updateValue = await updateStatus(id, myid, type, confirm)
     if (updateValue) {
         const theOrder = await getOrderDetail(id)
         //当双方都确认时修改该房源的已租赁用户数
@@ -50,8 +51,11 @@ router.post('/updatestatus', async function (ctx, next) {
             //修改已租赁用户数
             updateCount(houseData.id, (houseData.rentCount) + 1)
             ctx.body = new SuccessModel('订单已被双方确认')
-        } else {
-            ctx.body = new SuccessModel('您已确认订单')
+        }
+        //当双方都取消订单时删除该订单信息
+        if (theOrder.renterState === 2 && theOrder.ownerState === 2){
+            deleteOrder(id)
+            ctx.body = new SuccessModel('订单已取消')
         } 
     } else {
         ctx.body = new ErrorModel('更新状态失败')

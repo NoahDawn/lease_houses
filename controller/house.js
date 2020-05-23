@@ -59,7 +59,7 @@ const updateCount = async (id, count) => {
 }
 
 //更改出租状态
-const updateHouse = async (id) => {
+const updateHouse = async (id, Type) => {
     const sql = `update housems set state=1 where id='${id}' `
 
     const updateData = await exec(sql)

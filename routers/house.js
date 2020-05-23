@@ -8,7 +8,7 @@ const date = require('silly-datetime')
 
 //获取列表路由
 router.get('/list', async function (ctx, next) {
-    let owner = ctx.query.author || ''
+    let owner = ctx.query.owner || ''
     let keyword = ctx.query.keyword || ''
 
     if (ctx.query.isadmin) {
