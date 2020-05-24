@@ -3,11 +3,11 @@ const xss = require('xss')
 const { exec } = require('../db/mysql.js')
 
 //获取列表
-const getList = async (owner, keyword) => {
+const getList = async (ownerId, keyword) => {
     //where 1=1用于为后续添加的查询条件做连接
     let sql = `select * from housems where 1=1 `
-    if (owner) {
-        sql += `and owner='${owner}' `
+    if (ownerId) {
+        sql += `and ownerId='${ownerId}' `
     }
     if (keyword) {
         sql += `and location like '%${keyword}%' `
@@ -36,15 +36,27 @@ const newHouse = async (houseData = {}) => {
     const ownerId = houseData.ownerId
     const phone = xss(houseData.phone)
     const detail = xss(houseData.detail)
+    const picture = 'http://localhost:8000/static/picture/house/DefaultAvatar.jpg'
 
     const sql = `insert into housems (houseName, houseType, location, direction, floor, 
-                                      roomType, rent, owner, ownerId, phone, detail)
+                                      roomType, rent, owner, ownerId, phone, detail, picture)
                  values ('${houseName}', '${houseType}', '${location}', '${direction}', '${floor}', 
-                         '${roomType}', '${rent}', '${owner}', '${ownerId}', '${phone}', '${detail}') `
+                         '${roomType}', '${rent}', '${owner}', '${ownerId}', '${phone}', '${detail}', '${picture}') `
     const insertData = await exec(sql)
     return {
         id: insertData.insertId
     }
+}
+
+//填充图片路径
+const pictureURL = async (id, picture) => {
+    const sql = `update housems set picture='${picture}' where id='${id}' `
+
+    const updateData = await exec(sql)
+    if (updateData.affectedRows > 0) {
+        return true
+    }
+    return false
 }
 
 //更改已租赁人数
@@ -58,12 +70,29 @@ const updateCount = async (id, count) => {
     return false
 }
 
-//更改出租状态
-const updateHouse = async (id, Type) => {
-    const sql = `update housems set state=1 where id='${id}' `
+//修改房源信息
+const updateHouse = async (houseData = {}) => {
+    const rent = xss(houseData.rent)
+    const phone = xss(houseData.phone)
+    const detail = xss(houseData.detail)
+    const state = xss(houseData.state)
+    const rentCount = xss(houseData.rentCount)
 
+    const sql = `update housems set rent='${rent}', phone='${phone}', detail='${detail}', 
+                                    state='${state}', rentCount='${rentCount}'
+                 where id='${houseData.id}' and ownerId='${houseData.ownerId}' `
     const updateData = await exec(sql)
     if (updateData.affectedRows > 0) {
+        return true
+    }
+    return false
+}
+
+//删除房源信息
+const deleteHouse = async function(id, ownerId) {
+    const sql = `delete from housems where id='${id}' and ownerId='${ownerId}' `
+    const deleteData = await exec(sql)
+    if (deleteData.affectedRows > 0) {
         return true
     }
     return false
@@ -73,6 +102,8 @@ module.exports = {
     getList,
     getHouseDetail,
     newHouse,
+    pictureURL,
     updateHouse,
-    updateCount
+    updateCount,
+    deleteHouse
 }

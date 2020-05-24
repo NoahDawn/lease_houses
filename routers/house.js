@@ -1,5 +1,5 @@
 const router = require('koa-router') ()
-const { getList, getHouseDetail, newHouse, updateHouse } = require('../controller/house.js')
+const { getList, getHouseDetail, newHouse, updateHouse, deleteHouse } = require('../controller/house.js')
 const { isExit, addRecord,updateRecord } = require('../controller/record.js')
 const { SuccessModel, ErrorModel } = require('../model/resModel.js')
 const loginCheck = require('../middleware/loginCheck.js')
@@ -8,23 +8,10 @@ const date = require('silly-datetime')
 
 //获取列表路由
 router.get('/list', async function (ctx, next) {
-    let owner = ctx.query.owner || ''
+    let ownerId = ctx.query.ownerId || ''
     let keyword = ctx.query.keyword || ''
 
-    if (ctx.query.isadmin) {
-        console.log('is admin')
-        //管理员界面
-        if (ctx.session.username == null) {
-            console.log('is admin, but no login')
-            //未登录
-            ctx.body = new ErrorModel('未登录')
-            return
-        }
-        //强制只能查询自己的博客
-        owner = ctx.session.username
-    }
-
-    const listData = await getList(owner, keyword)
+    const listData = await getList(ownerId, keyword)
     ctx.body = new SuccessModel(listData)
 })
 
@@ -52,39 +39,44 @@ router.get('/detail', async function (ctx, next) {
     ctx.body = new SuccessModel(detailData)
 })
 
-//添加房源路由
-router.post('/new', loginCheck, async function (ctx, next) {
-// router.post('/new', async function (ctx, next) {
-    const body = ctx.request.body
-    // body.owner = ctx.session.realname
-    body.owner = ctx.query.owner
-    body.ownerId = ctx.query.ownerId
-    const newData = await newHouse(body)
-    ctx.body = new SuccessModel(newData)
-})
+// //添加房源路由
+// router.post('/new', loginCheck, async function (ctx, next) {
+//     const body = ctx.request.body
+//     body.owner = ctx.query.owner
+//     body.ownerId = ctx.query.ownerId
+//     const newData = await newHouse(body)
+//     ctx.body = new SuccessModel(newData)
+// })
 
 //更新房屋租赁状态路由
-// router.post('/update', loginCheck, async function (ctx, next) {
 router.post('/update', async function (ctx, next) {
-    const updateValue = await updateHouse(ctx.query.id)
+    const body = ctx.request.body
+    body.id = ctx.query.id
+    body.ownerId = ctx.query.ownerId
+    const updateValue = await updateHouse(body)
     if (updateValue) {
         ctx.body = new SuccessModel()
     } else {
-        ctx.body = new ErrorModel('更新租赁状态失败')
+        ctx.body = new ErrorModel('更新房源信息失败')
     }
 })
 
-//删除博客路由
-// router.post('/delete', loginCheck, async function (ctx, next) {
-// router.post('/delete', async function (ctx, next) {
-//     const author = ctx.session.username
-//     const deleteValue = await deleteBlog(ctx.query.id, author)
-//     if (deleteValue) {
-//         ctx.body = new SuccessModel()
-//     } else {
-//         ctx.body = new ErrorModel('删除博客失败')
-//     }
-// })
+//删除房源路由
+router.post('/delete', async function (ctx, next) {
+    const id = ctx.query.id
+    const houseData = await getHouseDetail(id)
+    console.log(houseData.rentCount)
+    if (houseData.rentCount === 0) {
+        const deleteValue = await deleteHouse(id, ctx.query.ownerId)
+        if (deleteValue) {
+            ctx.body = new SuccessModel()
+        } else {
+            ctx.body = new ErrorModel('删除房源失败')
+        }
+    } else {
+        ctx.body = new ErrorModel('当前房源存在租户,不可删除')
+    }
+})
 
 module.exports = {
     router

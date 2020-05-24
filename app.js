@@ -40,7 +40,7 @@ onerror(app)
 //注册middlewares(中间件)
 //设置图片的上传大小
 app.use(koaBody({
-    multipart: true,
+    multipart: true,       //是否允许多张图片的上传
     formidable: {
         maxFileSize: 200*1024*1024    // 设置上传文件大小最大限制，默认2M
     }
@@ -101,38 +101,72 @@ app.use(cors({
     exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'] //设置获取其他自定义字段
 }))
 
-router.post('/register', async function (ctx, next) {
-    const body = ctx.request.body
-    const newData = await register(body)
-    ctx.body = new SuccessModel(newData)
-})
-
 const { updateUserMS } = require('./controller/user.js')
 //用户个人信息修改，含头像上传
 router.post('/api/user/update', async function (ctx, next) {
     const body = ctx.request.body
-
-    //头像的上传
-    const file = ctx.request.files.user
     const userid = ctx.request.query.userid
+    // 头像的上传
+    const file = ctx.request.files.user
     // 创建可读流
     const reader = fs.createReadStream(file.path);
-    // 修改文件的名称
+    // 修改文件的名称,格式为user_userid.后缀
     var newFilename = 'user_'+`${userid}`+'.'+file.name.split('.')[1]
     var uploadPath = path.join(__dirname, '/static/picture/user/') + `/${newFilename}`;
     
-    //创建可写流
+    // 创建可写流
     const upStream = fs.createWriteStream(uploadPath);
     // 可读流通过管道写入可写流
     reader.pipe(upStream);
-    //返回保存的路径
+    // 返回保存的路径
     const url = 'http://' + ctx.headers.host + '/static/picture/user/' + newFilename
 
-    //将保存的路径写入body
+    // 将保存的路径写入body
     body.picture = url
     body.id = userid
     const newData = await updateUserMS(body)
     return ctx.body = {userid:newData.id}
+})
+
+const { newHouse, pictureURL } = require('./controller/house.js')
+const { getUserDetail } = require('./controller/user.js')
+router.post('/api/house/new', async function (ctx, next) {
+    const body = ctx.request.body
+    body.ownerId = ctx.query.ownerId
+    body.owner = (await getUserDetail(body.ownerId)).realname
+    const newData = await newHouse(body)
+    const houseid = newData.id
+    // 上传多个文件
+    const files = ctx.request.files.house // 获取上传文件
+    let count = 1
+    let picture = ``
+    for (let file of files) {
+        // 创建可读流
+        const reader = fs.createReadStream(file.path)
+        // 图片重命名，格式为house_houseid_图片组编号.后缀
+        let newFilename = 'house_'+`${houseid}`+'_'+`${count}`+'.'+file.name.split('.')[1]
+        // 获取上传文件扩展名
+        let filePath = path.join(__dirname, '/static/picture/house/') + `/${newFilename}`
+        // 创建可写流
+        const upStream = fs.createWriteStream(filePath)
+        // 可读流通过管道写入可写流
+        reader.pipe(upStream)
+        // 获取图片的根目录
+        const url = 'http://' + ctx.headers.host + '/static/picture/house/' + newFilename
+        //判断当前图片是否是最后一张，若是，则总路径结尾不加';'作为分隔符
+        if (count === files.length) {
+            picture += url
+        } else {
+            picture += url + ';'
+        }
+        count++
+    }
+    console.log('allurl is: ', picture)
+    const pictureValue = await pictureURL(houseid, picture)
+    if (pictureValue) {
+        return ctx.body = {newData:houseid}
+    }
+    return ctx.body = {ms:"新建房源失败"}
 })
 
 //注册router
