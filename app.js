@@ -33,6 +33,7 @@ const user = require('./routers/user.js')
 const house = require('./routers/house.js')
 const record = require('./routers/record.js')
 const order = require('./routers/order.js')
+const news = require('./routers/news.js')
 
 //error handler
 onerror(app)
@@ -101,8 +102,8 @@ app.use(cors({
     exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'] //设置获取其他自定义字段
 }))
 
-const { updateUserMS } = require('./controller/user.js')
 //用户个人信息修改，含头像上传
+const { updateUserMS } = require('./controller/user.js')
 router.post('/api/user/update', async function (ctx, next) {
     const body = ctx.request.body
     const userid = ctx.request.query.userid
@@ -119,7 +120,7 @@ router.post('/api/user/update', async function (ctx, next) {
     // 可读流通过管道写入可写流
     reader.pipe(upStream);
     // 返回保存的路径
-    const url = 'http://' + ctx.headers.host + '/static/picture/user/' + newFilename
+    const url = 'http://' + ctx.headers.host + '/picture/user/' + newFilename
 
     // 将保存的路径写入body
     body.picture = url
@@ -128,6 +129,7 @@ router.post('/api/user/update', async function (ctx, next) {
     return ctx.body = {userid:newData.id}
 })
 
+//信件房源，含展示图片的多张上传
 const { newHouse, pictureURL } = require('./controller/house.js')
 const { getUserDetail } = require('./controller/user.js')
 router.post('/api/house/new', async function (ctx, next) {
@@ -152,7 +154,7 @@ router.post('/api/house/new', async function (ctx, next) {
         // 可读流通过管道写入可写流
         reader.pipe(upStream)
         // 获取图片的根目录
-        const url = 'http://' + ctx.headers.host + '/static/picture/house/' + newFilename
+        const url = 'http://' + ctx.headers.host + '/picture/house/' + newFilename
         //判断当前图片是否是最后一张，若是，则总路径结尾不加';'作为分隔符
         if (count === files.length) {
             picture += url
@@ -174,6 +176,7 @@ router.use('/api/user', user)
 router.use('/api/house', house)
 router.use('/api/record', record)
 router.use('/api/order', order)
+router.use('/api/news', news)
 app.use(router.routes(), router.allowedMethods())
 
 //抛出异常

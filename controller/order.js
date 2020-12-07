@@ -29,9 +29,10 @@ const newOrder = async (orderData = {}) => {
     const ownerId = orderData.ownerId
     const houseId = orderData.houseId
     const rentMonth = xss(orderData.rentMonth)
+    const detail = xss(orderData.detail)
  
-    const sql = `insert into orders (renterId, ownerId, houseId, rentMonth)
-                 values ('${renterId}', '${ownerId}','${houseId}', '${rentMonth}') `
+    const sql = `insert into orders (renterId, ownerId, houseId, rentMonth, detail)
+                 values ('${renterId}', '${ownerId}','${houseId}', '${rentMonth}', '${detail}') `
     const insertData = await exec(sql)
     return {
         id: insertData.insertId

@@ -29,7 +29,7 @@ router.post('/new', async function (ctx, next) {
     let houseid = ctx.query.houseid || ''
     const houseData = await getHouseDetail(houseid)
     const ownerid = houseData.ownerId
-    const orderData = { renterId: myid, ownerId: ownerid, houseId: houseid, rentMonth: month }
+    const orderData = { renterId: myid, ownerId: ownerid, houseId: houseid, rentMonth: month, detail: body.detail }
     const newData = await newOrder(orderData)
     ctx.body = new SuccessModel(newData)
 })
@@ -56,8 +56,9 @@ router.post('/updatestatus', async function (ctx, next) {
             deleteOrder(id)
             ctx.body = new SuccessModel('订单已取消')
         } 
+        ctx.body = new ErrorModel('您已更改订单状态')
     } else {
-        ctx.body = new ErrorModel('更新状态失败')
+       ctx.body = new ErrorModel('更新状态失败')
     }
 })
 

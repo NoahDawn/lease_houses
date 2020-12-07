@@ -10,8 +10,9 @@ const date = require('silly-datetime')
 router.get('/list', async function (ctx, next) {
     let ownerId = ctx.query.ownerId || ''
     let keyword = ctx.query.keyword || ''
+    let pageType = ctx.query.pageType || ''
 
-    const listData = await getList(ownerId, keyword)
+    const listData = await getList(ownerId, keyword, pageType)
     ctx.body = new SuccessModel(listData)
 })
 
@@ -55,7 +56,7 @@ router.post('/update', async function (ctx, next) {
     body.ownerId = ctx.query.ownerId
     const updateValue = await updateHouse(body)
     if (updateValue) {
-        ctx.body = new SuccessModel()
+        ctx.body = new SuccessModel('更新房源信息成功')
     } else {
         ctx.body = new ErrorModel('更新房源信息失败')
     }
@@ -69,7 +70,7 @@ router.post('/delete', async function (ctx, next) {
     if (houseData.rentCount === 0) {
         const deleteValue = await deleteHouse(id, ctx.query.ownerId)
         if (deleteValue) {
-            ctx.body = new SuccessModel()
+            ctx.body = new SuccessModel('删除房源成功')
         } else {
             ctx.body = new ErrorModel('删除房源失败')
         }

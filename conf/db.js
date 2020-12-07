@@ -6,7 +6,7 @@ let MYSQL_CONF = {
     user: 'root',
     password: '1234',
     port: '3306',
-    database: 'lease_houses'
+    database: 'lease_house'
 }
 
 let REDIS_CONF = {
@@ -20,7 +20,7 @@ if (env === 'dev') {
         user: 'root',
         password: '1234',
         port: '3306',
-        database: 'lease_houses'
+        database: 'lease_house'
     }
     
     REDIS_CONF = {
@@ -35,7 +35,7 @@ if (env === 'production') {
         user: 'root',
         password: '1234',
         port: '3306',
-        database: 'lease_houses'
+        database: 'lease_house'
     }
     
     REDIS_CONF = {
