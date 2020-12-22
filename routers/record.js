@@ -24,7 +24,7 @@ router.get('/list', async function (ctx, next) {
             const houseData = await getHouseDetail(houseId)
             listData.push(houseData)
         }
-        ctx.body = new SuccessModel(listData)
+        ctx.body = {listData: listData}
     } else {
         //不存在，反馈提示信息
         ctx.body = new SuccessModel('暂无浏览记录')

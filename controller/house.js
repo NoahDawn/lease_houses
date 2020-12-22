@@ -3,7 +3,7 @@ const xss = require('xss')
 const { exec } = require('../db/mysql.js')
 
 //获取列表
-const getList = async (ownerId, keyword) => {
+const getList = async (ownerId, keyword, pageType) => {
     //where 1=1用于为后续添加的查询条件做连接
     let sql = `select * from housems where 1=1 `
     if (ownerId) {
@@ -12,7 +12,11 @@ const getList = async (ownerId, keyword) => {
     if (keyword) {
         sql += `and location like '%${keyword}%' `
     }
-    sql += `and state=0 order by id desc `
+    if (pageType) {
+        sql += `order by id desc `
+    } else {
+        sql += `and state=0 order by id desc `
+    }
     return await exec(sql)
 }
 
@@ -36,12 +40,13 @@ const newHouse = async (houseData = {}) => {
     const ownerId = houseData.ownerId
     const phone = xss(houseData.phone)
     const detail = xss(houseData.detail)
-    const picture = 'http://localhost:8000/static/picture/house/DefaultAvatar.jpg'
+    const picture = 'http://101.200.134.15:8000/picture/house/DefaultAvatar.jpg'
+    const allURL = picture + ';' + picture + ';' + picture
 
     const sql = `insert into housems (houseName, houseType, location, direction, floor, 
                                       roomType, rent, owner, ownerId, phone, detail, picture)
                  values ('${houseName}', '${houseType}', '${location}', '${direction}', '${floor}', 
-                         '${roomType}', '${rent}', '${owner}', '${ownerId}', '${phone}', '${detail}', '${picture}') `
+                         '${roomType}', '${rent}', '${owner}', '${ownerId}', '${phone}', '${detail}', '${allURL}') `
     const insertData = await exec(sql)
     return {
         id: insertData.insertId

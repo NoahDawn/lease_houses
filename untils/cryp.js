@@ -5,8 +5,10 @@ const SECRET_KEY = 'DZG_dzg@'
 
 //md5 加密
 function md5(content) {
+    //创建md5哈希算法
     let md5 = crypto.createHash('md5')
-    //以十六进制返回
+    //update：添加要转换的值
+    //digest('hex')以十六进制返回
     return md5.update(content).digest('hex')
 }
 
